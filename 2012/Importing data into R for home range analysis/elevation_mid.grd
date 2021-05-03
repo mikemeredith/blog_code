@@ -1,0 +1,26 @@
+[general]
+creator=R package 'raster'
+created=2021-05-02 16:36:48
+[georeference]
+nrows=180
+ncols=240
+xmin=3.5
+ymin=43.65
+xmax=3.7
+ymax=43.8
+projection=+proj=longlat +datum=WGS84 +no_defs
+[data]
+datatype=FLT4S
+byteorder=little
+nbands=1
+bandorder=BIL
+categorical=FALSE
+minvalue=32
+maxvalue=814
+nodatavalue=-3.4e+38
+[legend]
+legendtype=
+values=
+color=
+[description]
+layername=srtm_37_04
