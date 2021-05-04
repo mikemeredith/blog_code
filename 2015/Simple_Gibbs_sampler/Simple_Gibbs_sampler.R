@@ -2,7 +2,7 @@
 # Animation of Gibbs sampler with salamander data
 
 # Code for the web page at
-#   http://mikemeredith.net/blog/201502/Gibbs_sampler.htm
+#  https://mmeredith.net/blog/2015/Gibbs_sampler.htm
 
 # The salamanders data:
 # ---------------------
@@ -10,6 +10,7 @@ S <- 39    # Number of sites
 K <- 5     # Number of visits to each site
 xObs <- 18 # Number of sites where salamanders were detected
 d <- 30    # total number of detections
+# This is all we need, we don't need the site-by-site data.
 
 # Priors: independent beta(1, 1) priors
 # -------------------------------------
@@ -49,9 +50,9 @@ pi <- pi[101:10100]
 # Plot histograms with mean and SD
 # -----------------------------------
 par(mfrow=1:2)
-if(require(wiqid)) {
-  plotPost(psi)
-  plotPost(pi)
+if(require(mcmcOutput)) {
+  postPlot(psi)
+  postPlot(pi)
 } else {
   hist(psi)
   abline(v=mean(psi), col='red')
@@ -93,6 +94,3 @@ par(mfrow=c(1, 1))
 library(coda)
 effectiveSize(psi)
 effectiveSize(pi)
-
-
-

@@ -2,11 +2,11 @@
 # Animation of Gibbs sampler with salamander data
 
 # Code for the animated GIF on the web page at
-#   http://mikemeredith.net/blog/201502/Gibbs_sampler.htm
+#   https://mmeredith.net/blog/2015/Gibbs_sampler.htm
 
 # The first section is the same as the script "Simple_Gibbs_sampler.R",
 #   but with only 1000 iterations, and we don't remove the burn-in.
- 
+
 S <- 39    # Number of sites
 K <- 5     # Number of visits to each site
 xObs <- 18 # Number of sites where salamanders were detected
@@ -38,11 +38,11 @@ points(psi[1], pi[1], pch=16, col='red')  # starting point
 
 # Do stepwise plots (first 1000 iterations)
 # -----------------------------------------
-# Do you want to write the plots to BMP files, or look at each one?
+# Do you want to write the plots to PNG files, or look at each one?
 
 # EITHER run the next 2 lines AND 'dev.off()' at the end to write to files
 dir.create("gfx")  # sub-directory to store individual plot files
-bmp(file = "gfx/Gibbs%03d.bmp", width=400, height=400) ; bmp.dev <- dev.cur()
+png(file = "gfx/Gibbs%03d.png", width=400, height=400) ; png.dev <- dev.cur()
 
 # OR run these 2 lines to display the plots one by one:
 # if(interactive())
@@ -65,25 +65,11 @@ for(i in show) {
   points(psi[2:i], pi[2:i], pch=16, cex=0.5)
 }
 
-dev.off(bmp.dev) # Do this to write plots for animation
+dev.off(png.dev) # Do this to write plots for animation
 
-# If you have ImageMagick installed and on the path, this
-#   command should work:
-system("convert -delay 30 gfx/*.bmp GibbsSampler.gif")
-# didn't work for me, so I had to use the Windows command line. Details at
-# http://mikemeredith.net/Workarounds/Imagemagick_DOS.htm
+# Make the animated GIF file
 
-
-# Credible region plot
-# --------------------
-# Not part of the animation, but here is the code for the
-#   plot on the web page:
-if(require(emdbook)) {
-  plot(psi, pi, pch=19, cex=0.1, xlim=c(0.2, 1), ylim=c(0, 0.8), asp=1)
-  eqscplot(psi, pi, pch=19, cex=0.1, xlim=c(0.2, 1), ylim=c(0, 0.8),
-    xlab="occupancy, psi", ylab="detection, pi", las=1,
-    col = rgb(0, 0, 0, alpha = 0.2))
-  HPDregionplot(cbind(psi, pi), col="red", lwd=3, add=TRUE)
-  mtext("95% highest posterior density region", side=3, line=1)
-}
-
+files <- list.files(pattern = ".png$", recursive = TRUE)
+library(gifski)
+gifski(files, "Gibbs_sampler.gif", width = 400, height = 400,
+  delay = 0.25)

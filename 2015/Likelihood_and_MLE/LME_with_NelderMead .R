@@ -83,11 +83,12 @@ for(j in 2:actualIter) {
   polygon(Xpsi[j, ], Xpi[j, ], col=c('skyblue', 'yellow', 'pink')[move[j]])
 }
 abline(v=mean(Xpsi[actualIter, ]), h=mean(Xpi[actualIter, ]), col='grey')
-legend('topright', c("Reflect", "Expand", "Contract"), pch=24, pt.bg=c('skyblue', 'yellow', 'pink'), pt.cex=2, bty='n' )
+legend('topright', c("Reflect", "Expand", "Contract"), pch=24, 
+    pt.bg=c('skyblue', 'yellow', 'pink'), pt.cex=2, bty='n' )
 
 # Do stepwise plots
 # -----------------
-# Do you want to write the plots to BMP files, or look at each one?
+# Do you want to write the plots to PNG files, or look at each one?
 
 # Run the next 2 lines AND 'dev.off()' at the end to write to files
 dir.create("gfx")  # sub-directory to store individual plot files
@@ -126,6 +127,11 @@ dev.off(png.dev) # Do this to write plots for animation
 
 files <- list.files(pattern = ".png$", recursive = TRUE)
 
+# For the .mp4 file:
 library(av)
 av_encode_video(files, "NelderMead.mp4", framerate=2)
 
+# For the animated GIF file
+library(gifski)
+gifski(files, "NelderMead.gif", width = 400, height = 400,
+  delay = 0.5)
