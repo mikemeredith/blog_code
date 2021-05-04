@@ -1,16 +1,20 @@
 
+# This will not work as-is in WinBUGS or OpenBUGS
+
 model {
-sigma2 ~ dunif(0, 20)     # set up the priors for the parameters
+  sigma2 ~ dunif(0, 20)     # set up the priors for the parameters
   sigma <- sqrt(sigma2 / 2)
-lam0 ~ dgamma(0.1,0.1)
+  lam0 ~ dgamma(0.1,0.1)
   psi ~ dunif(0, 1)
-     
+
   for (i in 1:M){           # loop through the augmented population
     z[i] ~ dbern(psi)       # state of individual i (real or imaginary)
+
     SX[i] ~ dunif(0,xu)     # priors for the activity centers for each individual
     SY[i] ~ dunif(0,yu)     # lower x coordinate = 0, xu is the upper x value
     pOK[i] <- habmat[trunc(SX[i]+1), trunc(SY[i]+1)] # habitat check
     OK[i] ~ dbern(pOK[i])   # OK[i] = 1, the ones trick
+
     for(j in 1:J) {         # loop through the J camera trap locations
       Dsq[i,j] <- pow(SX[i]-trapmat[j,1], 2) + pow(SY[i]-trapmat[j,2],2)
       g[i,j] <- exp(-Dsq[i,j]/sigma2)
@@ -20,5 +24,4 @@ lam0 ~ dgamma(0.1,0.1)
   }
   N <- sum(z[1:M])   # derive number (check that N << M)
   D <- N / A         # derive density
-
 }

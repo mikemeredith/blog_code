@@ -1,18 +1,14 @@
 # This is the code for the animated video on the blog
-# http://www.mikemeredith.net/blog/1309_Normal_pdf_animation.htm
-
-# Updated 16 Sept 2013
+# https://mmeredith.net/blog/2013/1309_Normal_pdf_animation.htm
 
 # See Kruschke 2011 "Doing Bayesian Data Analysis" p32 for the basic
 #  idea of using spinners to explain
 #  probability density for continuous variables.
 
-# I used ImageMagick (www.imagemagick.org) to combine the individual images
-#   into a .mp4 video file.
-
 library(MASS)  # We use the equiscale plot function (eqscplot)
+library(av)
 
-# Function to generate data to draw a circle 
+# Function to generate data to draw a circle
 # (Pass the output to lines or plot(..., type='l') to do the plot.)
 circle <- function(centre=c(0,0), radius=1, npt=500) {
   circ <- seq(0, 2*pi, length=npt)
@@ -31,7 +27,7 @@ tickStart <- (pnorm(labs - 1000, 0, 145) - 0.5) * 2*pi
 # Final locations will be uniform scale from -pi to pi:
 tickEnd <- (labs - 1000) / 400 * pi
 
-# Values used draw the curves
+# Values used to draw the curves
 nGrid <- 201  # Number of points to use
 grid <- seq(-400, 400, length=nGrid)  # Values, centered on 1000g
 gridStart <- (pnorm(grid, 0, 145) - 0.5) * 2*pi # Starting locations on the circle
@@ -46,7 +42,6 @@ segCol <- ifelse(isRed, 'red', 'pink')
 area <- diff(gridStart) / 2 # Area of initial triangles (height = 1)
 
 dir.create("gfx")  # sub-directory to store individual plot files
-# setwd("gfx")
 
 # ##############################################################
 # Every plot between png(...) and dev.off() creates a .PNG file!
@@ -58,6 +53,7 @@ par(mar=c(0,2,0,2))
 
   # Initial plot with labels
   # ------------------------
+  # Do multiple plots with this, otherwise it disappears too quickly
   diam <- 1   # Diameter of the circle
   gridNow <- gridStart
   # Calculate coordinates of points around the circle
@@ -65,40 +61,43 @@ par(mar=c(0,2,0,2))
   y1 <- cos(gridNow + pi) * diam + diam
   polyx <- c(x1, x1[1])
   polyy <- c(y1, y1[1])
-  # Set up axes, display nothing:
-  eqscplot(circle(0:1), type='l', bty='n', xaxt='n', yaxt='n', xlab='', ylab='',
-    xlim=range(gridEnd), col='white' )
-  # Draw the pink polygon; make the 1150 - 1200 sector red
-  polygon(polyx, polyy, col='pink', border=NA)
   redx <- c(0, x1[isRed], 0)
   redy <- c(diam, y1[isRed], diam)
-  polygon(redx, redy, col='red', border=NA)
-  lines(x1, y1) # Add a black line around the circle
-  # Add ticks (actually blobs), white radial lines, and labels
   xt <- sin(tickStart + pi) * diam
   yt <- cos(tickStart + pi) * diam + diam
-  segments(xt, yt, 0, diam, col='white', lwd=2)
-  points(xt, yt, pch=19)
-  text(xt[1], yt[1], " 600  1400", pos=3, xpd=TRUE)
-  pos <- c(4,4,4,4, 1, 2,2,2,2)
-  text(xt[2:10], yt[2:10], labs[10:2], pos=pos, xpd=TRUE)
-  # Add the spinner arrow
-  points(0,diam, cex=3, pch=20)
   arr <- c(4, 4+pi)
   diam.arr <- 0.8
   xta <- sin(arr) * diam.arr
   yta <- cos(arr) * diam.arr + diam
-  arrows(xta[1], yta[1],xta[2], yta[2], lwd=3)
-  # 
-  title(xlab="Weight of squirrel (g)", line=-3.5)
-  title(sub="Probability that spinner lands between 1150 and 1200 = area of red segment", line=-2)
+  for(i in 1:7) {
+    # Set up axes, display nothing:
+    eqscplot(circle(0:1), type='l', bty='n', xaxt='n', yaxt='n', xlab='', ylab='',
+      xlim=range(gridEnd), col='white' )
+    # Draw the pink polygon; make the 1150 - 1200 sector red
+    polygon(polyx, polyy, col='pink', border=NA)
+    polygon(redx, redy, col='red', border=NA)
+    lines(x1, y1) # Add a black line around the circle
+    # Add ticks (actually blobs), white radial lines, and labels
+    segments(xt, yt, 0, diam, col='white', lwd=2)
+    points(xt, yt, pch=19)
+    text(xt[1], yt[1], " 600  1400", pos=3, xpd=TRUE)
+    pos <- c(4,4,4,4, 1, 2,2,2,2)
+    text(xt[2:10], yt[2:10], labs[10:2], pos=pos, xpd=TRUE)
+    # Add the spinner arrow
+    points(0,diam, cex=3, pch=20)
+    arrows(xta[1], yta[1],xta[2], yta[2], lwd=3)
 
+    title(xlab="Weight of squirrel (g)", line=-3.5)
+    title(sub="Probability that spinner lands between 1150 and 1200 = area of red segment",
+        line=-2)
+  }
 
   # Sequence of plots where (1) arc gets flatter (diameter increases) and
   #   (2) scale morphs into a regular scale
   # ----------------------------------------------------------------------
   # Set up diameters to use and increments to move grid points and ticks
-  diams <- c(1, 1.01, 1.02, 1.05, (11:20)/10, 2.5, 3:10, 20, 30, 40, 50, 100, 1000, 1e4)
+  diams <- c(1, 1.01, 1.02, 1.05, (11:20)/10, 2.5, 3:10, 20, 30, 40, 50,
+      100, 1000, 1e4)
   nIncrem <- length(diams)
   incGrid <- (gridEnd - gridStart) / nIncrem
   incTick <- (tickEnd - tickStart) / nIncrem
@@ -111,7 +110,7 @@ par(mar=c(0,2,0,2))
     x2 <- sin(gridNow/diam + pi) * diam
     y2 <- cos(gridNow/diam + pi) * diam + diam
     # Calculate the top corners of the shaded area to give correct area
-    triang2 <- diff(gridNow) * diam / 2 
+    triang2 <- diff(gridNow) * diam / 2
       # Area of big triangle with apex at centre of arc
     ratio <- area / triang2
     xtl <- x2[-nGrid] * (1 - ratio) # x-coord of top-left
@@ -121,7 +120,7 @@ par(mar=c(0,2,0,2))
     # Set up axes, display nothing:
     eqscplot(circle(0:1), type='l', bty='n', xaxt='n', yaxt='n', xlab='', ylab='',
       xlim=range(gridEnd), col='white' )
-    # Plot a little quadrilateral between adjacent grid points, 
+    # Plot a little quadrilateral between adjacent grid points,
     #   red if between 1150 and 1200
     for(j in 1:(nGrid - 1)) {
       polyx <- c(x2[j], x2[j+1], xtr[j], xtl[j], x2[j])
@@ -170,14 +169,13 @@ par(mar=c(0,2,0,2))
 dev.off()
 # ######################################################
 
-# Look in the gfx folder and you should see 32 .png files labelled 
-#   "norm001.png" thro "norm032.png".
+# Look in the gfx folder and you should see 38 .png files labelled
+#   "norm001.png" thro "norm038.png".
 
 # Combine the individual graphics files into a .mp4 file
 # ======================================================
 
 files <- list.files(pattern = ".png$", recursive = TRUE)
 
-library(av)
 av_encode_video(files, "normal.mp4", framerate=5)
 

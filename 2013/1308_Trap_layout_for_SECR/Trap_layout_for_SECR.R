@@ -1,6 +1,6 @@
 
 # This is the code for the plots at
-# 
+# https://mmeredith.net/blog/2013/1308_Trap_layout_for_SECR.htm
 
 # We compare a single 16 x 6 layout of traps with 3x3 clusters in a systematic
 #   random layout.
@@ -118,6 +118,3 @@ abline(h=0)
 abline(h=0.25, col='red', lwd=3, lty=3)
 legend('topleft', c("Valid estimates", "Data not usable"), pch=1, cex=0.8,
   col=c('blue', 'red'), bty='n')
-
-
-

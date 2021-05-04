@@ -1,6 +1,6 @@
 
 # Script to produce plots for the blog page
-# http:\\www.mikemeredith.net/blog/Circular_home_ranges.htm
+# https://mmeredith.net/blog/2013/1308_Circular_home_ranges.htm
 
 # Do we assume that home ranges are circular when we do SECR?
 
