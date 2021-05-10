@@ -1,0 +1,32 @@
+
+model {
+  sigma ~ dunif(0, 10)     # set up the priors for the parameters
+  alpha <- 1/(2*sigma^2)
+  p0 ~ dbeta(1,1)
+  omega ~ dbeta(0.001, 1)
+  beta ~ dunif(-5, 5)
+  
+  # spatial covariate
+  for(i in 1:(upperLimit[1]-1)) {
+    for(j in 1:(upperLimit[2]-1)) {
+      lam[i, j] <- exp(beta * edgeS[i, j])
+    }
+  }
+  lam0 <- lam * habMat # convert lam to 0 for non-habitat
+  probs <- lam0 / sum(lam0)
+
+  for (i in 1:M){           # loop through the augmented population
+    w[i] ~ dbern(omega)       # state of individual i (real or imaginary)
+    S[i, 1] ~ dunif(1,upperLimit[1]) # priors for the activity centers for each individual
+    S[i, 2] ~ dunif(1,upperLimit[2]) # lower x coordinate = 1, xu is the upper x value
+    # the zeros trick
+    negLogDen[i] <- -log(probs[trunc(S[i,1]), trunc(S[i,2])])
+    zeros[i] ~ dpois(negLogDen[i])
+    for(j in 1:nTraps) {         # loop through the camera trap locations
+      Dsq[i,j] <- (S[i,1]-trapMat[j,1])^2 + (S[i,2]-trapMat[j,2])^2
+      p[i,j] <- p0 * exp(-Dsq[i,j] * alpha)
+      y[i,j] ~ dbin(p[i,j] * w[i], nOcc)
+    }
+  }
+  N <- sum(w)   # derive number (check that N << M)
+}

@@ -1,0 +1,29 @@
+
+model{
+  # Likelihood
+  for(i in 1:nSites) {
+    # Ecological model
+    logit(psi[i]) <- sum(covs[i,] * beta)
+    z[i] ~ dbern(psi[i])
+    # Observation model
+    y[i] ~ dbin(p * z[i], n[i])
+    # GOF assessment
+    Tobs0[i] <- (sqrt(y[i]) - sqrt(p*z[i]*n[i]))^2  # FT discrepancy for observed data
+    zSim[i] ~ dbern(psi[i])
+    ySim[i] ~ dbin(p * zSim[i], n[i])
+    Tsim0[i] <- (sqrt(ySim[i]) - sqrt(p*zSim[i]*n[i]))^2  # ...and for simulated data
+  }
+
+  # Priors
+  p ~ dbeta(1, 1)
+  for(i in 1:nCovs) {
+    beta[i] ~ dunif(-5, 5)
+  }
+  
+  # GOF assessment
+  Tobs <- sum(Tobs0)
+  Tsim <- sum(Tsim0)
+
+  # Derived variable
+  N <- sum(z)
+}  

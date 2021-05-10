@@ -1,0 +1,57 @@
+# JAGS code for the blog post at
+#  https://mmeredith.net/blog/2019/MSOM_CrossVal.htm
+
+data {
+  # set up the constants used in the model.
+  Dpsi <- dim(Psi.cov)
+  nPsiCoef <- Dpsi[2]
+  Dp <- dim(Det.cov)
+  nDetCoef <- Dp[3]
+  DY <- dim(Y)
+  nPossSpp <- DY[1]
+  nSites <- DY[2]
+
+  muPsiCoef.tau <- 1 / 2.25 ^ 2
+  muDetCoef.tau <- 1 / 2.25 ^ 2
+  t.tau <- 1 / 2.25 ^ 2
+}
+
+model {
+  for (i in 1:nPossSpp) {
+    ### LIKELIHOOD
+    # Ecological model
+    for (j in 1:nSites) {
+      logit(psi[i, j]) <- sum(psiCoef[i, ] * Psi.cov[j, ]) # vector multiplication, same code for all models
+      Z[i, j] ~ dbern(psi[i, j])
+      # Observation model
+      for (k in 1:nSurveys[j]) {
+        logit(detect[i, j, k]) <- sum(detCoef[i, ] * Det.cov[j, k, ]) # vector multiplication
+        true.detect[i, j, k] <- detect[i, j, k] * Z[i, j]
+        Y[i, j, k] ~ dbern(true.detect[i, j, k])
+      }
+    }
+
+    ### PRIORS for coefficients for each species
+    for (m in 1:nPsiCoef){
+      psiCoef[i, m] ~ dnorm(muPsiCoef[m], tauPsiCoef[m])
+    }
+    for (m in 1:nDetCoef){
+      detCoef[i, m] ~ dnorm(muDetCoef[m], tauDetCoef[m])
+    }
+  }
+
+  ### HYPER-PRIORS for coefficients
+  for(m in 1:nPsiCoef){
+    muPsiCoef[m] ~ dnorm(0, muPsiCoef.tau)
+    halfsigmaPsiCoef[m] ~ dt(0, t.tau, 1)      # Cauchy distribution
+    sigmaPsiCoef[m] <- abs(halfsigmaPsiCoef[m])# folded or half-Cauchy
+    tauPsiCoef[m] <- pow(sigmaPsiCoef[m], -2)
+  }
+  for(m in 1:nDetCoef){
+    muDetCoef[m] ~ dnorm(0, muDetCoef.tau)
+    halfsigmaDetCoef[m] ~ dt(0, t.tau, 1)
+    sigmaDetCoef[m] <- abs(halfsigmaDetCoef[m])
+    tauDetCoef[m] <- 1 / (sigmaDetCoef[m] * sigmaDetCoef[m])
+  }
+}
+
