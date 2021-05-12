@@ -1,0 +1,62 @@
+
+# SCR model for proximity detectors treated as binomial,
+#   data  matrix Y is animals x traps with number of occasions detected.
+
+# Habitat mask and related constants derived from makeJAGSmask
+
+# Fit diagnostics (Bayesian p-value) as in Royle et al (2014) SCR book, section 8.4
+
+model {
+  omega ~ dbeta(1,1)  # existence parameter
+  pi ~ dbeta(1,1)     # sex ratio
+
+  for(t in 1:2){      # separate priors for male and female
+    p0[t] ~ dbeta(1,1)
+    sigma[t] ~ dunif(0, 30)        # in pixel units
+    sigma2[t] <- 1/(2*sigma[t]^2)
+  }
+
+  for(i in 1:M){
+    w[i] ~ dbern(omega)
+    sex[i] ~ dbern(pi)
+    AC[i, 1] ~ dunif(1, upperLimit[1])
+    AC[i, 2] ~ dunif(1, upperLimit[2])
+    pOK[i] <- habMat[trunc(AC[i, 1]), trunc(AC[i, 2])] # habitat check
+    OK[i] ~ dbern(pOK[i]) # OK[i] = 1, the ones trick
+
+    for(j in 1:nTraps){
+      d2[i,j] <- (AC[i,1] - trapMat[j,1])^2 + (AC[i,2] - trapMat[j,2])^2
+      p[i,j]<- p0[sex[i]+1]*exp(-sigma2[sex[i]+1]*d2[i,j])
+      Y[i,j] ~ dbin(p[i,j]*w[i], nOcc[j])
+      # components for fit diagnostics
+      Ysim[i,j] ~ dbin(p[i,j]*w[i], nOcc[j]) # simulated
+      Yexp[i,j] <- p[i,j]*w[i] * nOcc[j]     # expected
+      # components for T1
+      err1obs[i,j] <- (sqrt(Y[i,j]) - sqrt(Yexp[i,j]))^2
+      err1sim[i,j] <- (sqrt(Ysim[i,j]) - sqrt(Yexp[i,j]))^2
+    }
+    # components for T2
+    err2obs[i] <- (sqrt(sum(Y[i,])) - sqrt(sum(Yexp[i,])))^2
+    err2sim[i] <- (sqrt(sum(Ysim[i,])) - sqrt(sum(Yexp[i,])))^2
+  }
+  # components for T3
+  for(j in 1:nTraps){
+    err3obs[j] <- (sqrt(sum(Y[,j])) - sqrt(sum(Yexp[,j])))^2
+    err3sim[j] <- (sqrt(sum(Ysim[,j])) - sqrt(sum(Yexp[,j])))^2
+  }
+
+  # Fit diagnostics totals
+  T1obs <- sum(err1obs)
+  T1sim <- sum(err1sim)
+  T2obs <- sum(err2obs)
+  T2sim <- sum(err2sim)
+  T3obs <- sum(err3obs)
+  T3sim <- sum(err3sim)
+
+  # Derived parameters
+  N[1] <- sum(w * (1-sex))      # number of females...
+  N[2] <- sum(w * sex)          # ... males
+  D <- N /area * 1e8            # convert m2 to 100 km2
+  p0pc <- p0 * 100              # p0 as a percentage
+  sigmakm <- sigma * pixelWidth # sigma in km
+}
