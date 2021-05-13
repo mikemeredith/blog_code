@@ -1,0 +1,16 @@
+
+model {
+  for(m in 1:2) {
+    mu[m] <- 0
+    sigma[m] ~ dunif(0,5)
+    tau[m] <- (sigma[m])^-2
+  }
+  rho ~ dunif(-1,1)
+  var.eta <- tau[2]/(1 - rho^2)
+  
+  for(k in 1:500) {
+    eta[k, 1] ~ dnorm(mu[1], tau[1])
+    mu2[k] <- mu[2] + rho * sigma[2]/sigma[1] * (eta[k, 1] - mu[1])
+    eta[k, 2] ~ dnorm(mu2[k], var.eta)
+  }
+}

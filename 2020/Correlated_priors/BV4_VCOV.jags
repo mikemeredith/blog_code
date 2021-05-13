@@ -1,0 +1,16 @@
+
+model {
+  # Prior for variance-covariance matrix
+  sigma[1] ~ dunif(0, 5)
+  VCOV[1, 1] <- sigma[1]^2
+  sigma[2] ~ dunif(0, 5)
+  VCOV[2, 2] <- sigma[2]^2
+  rho ~ dunif(-1, 1)
+  VCOV[1, 2] <- rho * sigma[1] * sigma[2]
+  VCOV[2, 1] <- VCOV[1, 2]
+  mu <- c(0, 0)
+
+  for(k in 1:500) {
+    eta[k, 1:2] ~ dmnorm.vcov(mu, VCOV)
+  }
+}

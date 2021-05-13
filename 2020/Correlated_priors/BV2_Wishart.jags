@@ -1,0 +1,14 @@
+
+model {
+  # Prior for precision matrix
+  TAU ~ dwish(R, k)
+  mu <- c(0, 0)
+  for(k in 1:500) {
+    eta[k, 1:2] ~ dmnorm(mu, TAU)
+  }
+  # Derived quantities
+  VCOV <- inverse(TAU) # convert precision to variance-covariance
+  sigma[1] <- sqrt(VCOV[1,1])
+  sigma[2] <- sqrt(VCOV[2,2])
+  rho <- VCOV[1,2] / (sigma[1] * sigma[2]) # Correlation coefficient
+}
