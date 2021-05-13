@@ -76,7 +76,7 @@ object.size(mcmc2)
 diagPlot(mco2)      # diagnostic plots
 plot(mco2)          # plot posterior distributions
 summary(mco2)       # display a summary in the Console
-View(summary(mco1)  # view the summary in spreadsheet format
+View(summary(mco1)) # view the summary in spreadsheet format
 
 p0 <- mco2$p
 summary(p0)

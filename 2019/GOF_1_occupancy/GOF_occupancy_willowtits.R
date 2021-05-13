@@ -79,8 +79,8 @@ attach(jagsOut$sims.list)
 nIter <- length(p)
 Tobs <- Tsim <- numeric(nIter)
 for(iter in 1:nIter) {
-  # psi <- plogis(beta[iter])           # for the null model
-  psi <- plogis(covs %*% beta[iter, ])  # for the full model
+  psi <- plogis(beta[iter])               # for the null model
+  # psi <- plogis(covs %*% beta[iter, ])  # for the full model
   Tobs[iter] <- sum((sqrt(y) - sqrt(p[iter]*z[iter, ]*n))^2)
   ySim <- rbinom(237, n, p[iter]*z[iter, ])
   Tsim[iter] <- sum((sqrt(ySim) - sqrt(p[iter]*z[iter, ]*n))^2)

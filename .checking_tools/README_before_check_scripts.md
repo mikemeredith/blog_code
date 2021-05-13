@@ -13,9 +13,8 @@ All graphics produced by the script are saved in a PDF file with the same name. 
 
 Before running the scripts, you may want to check that the necessary packages are installed. I suggest first running `update.packages(ask='graphics',checkBuilt=TRUE)` to ensure everything is up to date, including dependencies. You can then install any extra packages needed with:
 ```
-needed <- c("AHMbook", "unmarked", "AICcmodavg", "sp", "rgdal", "plotrix", "raster",
-  "lme4", "R2WinBUGS", "R2OpenBUGS", "jagsUI", "denstrip", "rjags", "coda",
-  "devtools", "corrplot", "berryFunctions", "fields")
+needed <- c("AHMbook", "unmarked", "sp", "rgdal", "raster",
+  "lme4", "jagsUI", "devtools", "car", "dichromat", "fitdistrplus", "av", "gifski")
 got <- rownames(installed.packages())
 
 ( notgot <- needed[!needed %in% got] )

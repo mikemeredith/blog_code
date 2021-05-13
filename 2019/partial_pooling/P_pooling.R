@@ -3,6 +3,7 @@
 #  https://mmeredith.net/blog/2019/partial_pooling.htm
 
 library(jagsUI)
+library(mcmcOutput)
 
 n <- c(60, 60, 60, 60, 7, 6, 4, 3, 0)
 y <- c(42, 38, 21, 19, 3, 5, 0, 2, 0)
@@ -67,7 +68,7 @@ wanted <- c("R", "Rmean", "sd")
 
 ( outpp <- jags(jdata, NULL, wanted, "parpooling.jags", DIC=FALSE,
   n.burn=100, n.iter=10100, n.chains=3) )
-wiqid::diagPlot(outpp)
+diagPlot(outpp)
 
 res <- cbind(n=n,
              y=y,
