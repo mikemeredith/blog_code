@@ -1,0 +1,8 @@
+
+model{
+  omega ~ dbeta(DAprior[1], DAprior[2])
+  for(i in 1:M){
+    w[i] ~ dbern(omega)
+  }
+  N <- sum(w)
+} 

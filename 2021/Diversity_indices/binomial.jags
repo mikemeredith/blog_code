@@ -1,0 +1,8 @@
+# file: binomial.jags
+model{
+  # Prior
+  p ~ dbeta(1,1)
+
+  # Likelihood
+  y ~ dbin(p, n)
+}

@@ -1,0 +1,12 @@
+# File: multinomial.jags
+model{
+  # Prior
+  p ~ ddirch(alpha)
+  
+  # Model fit
+  y ~ dmulti(p, nsps)
+  
+  # Calculate indices
+  shannon <- -sum(p * log(p))
+  GS <- 1 - sum(p^2)
+}
