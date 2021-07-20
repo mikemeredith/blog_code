@@ -187,9 +187,9 @@ Cmcmc <- compileNimble(Rmodel, Rmcmc)
 
 # Generate MCMC output
 # --------------------
-# Run 1 chain with 1500 draws, keep all 1500
+# Run 1 chain with 2400 draws, keep all 2400
 set.seed(1)
-Cmcmc$Rmcmc$run(niter=1500, nburnin=0)
+Cmcmc$Rmcmc$run(niter=2400, nburnin=0)
 outList <- as.list(Cmcmc$Rmcmc$mvSamples)
 str(outList)
 tail(outList$sigma)  # if chain is stuck, these will all be the same
@@ -203,10 +203,11 @@ mcmcConf$printSamplers("sigma")
 # Get the sampler scale and acceptance rate for the target sampler
 scales <- Cmcmc$Rmcmc$samplerFunctions[[442]]$getScaleHistory()
 accept <- Cmcmc$Rmcmc$samplerFunctions[[442]]$getAcceptanceHistory()
-length(scales)  # 7
+length(scales)  # 12
 
+windows(12, 3)
 plot(outList$sigma[,1], type='l', ylab="sigma")
-abline(v=0:7*200, col='red')
-text(x=0:6*200 + 100, y=ypos(0.95), round(scales, 4), col='red')
-text(x=0:6*200 + 100, y=ypos(0.9), round(accept, 2), col='blue')
+abline(v=0:12*200, col='red')
+text(x=0:11*200 + 100, y=ypos(0.95), round(scales, 2), col='red')
+text(x=0:11*200 + 100, y=ypos(0.85), round(accept, 2), col='blue')
 
