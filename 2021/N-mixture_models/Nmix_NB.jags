@@ -1,0 +1,34 @@
+
+# Nmix model for overdispersed negative binomial distributed population
+# Uses mu-dispersion parameterization
+
+model{
+  for(i in 1:nSites) {
+    # Biological
+    N[i] ~ dnegbin(nb.p, nb.r)
+    # Observation model
+    for(j in 1:nOcc) {
+      C[i,j] ~ dbin(p, N[i])
+      # GOF
+      FT.obs1[i,j] <- (sqrt(C[i,j]) - sqrt(mu*p))^2
+      C.sim[i,j] ~ dbin(p, N[i])
+      FT.sim1[i,j] <- (sqrt(C.sim[i,j]) - sqrt(mu*p))^2
+    }
+  }
+
+  # Priors
+  mu ~ dunif(0, 20)
+  disp ~ dunif(0, 20)
+  nb.r <- 1/disp
+  nb.p <- nb.r / (nb.r + mu)
+
+  p ~ dbeta(1,1)  # probability of detection
+
+  # GOF
+  FT.obs <- sum(FT.obs1)
+  FT.sim <- sum(FT.sim1)
+
+  # Derived variable
+  Ntotal <- sum(N)
+  zinf <- 0
+}
